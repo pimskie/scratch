@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + TS</title>
+
+    <link rel="stylesheet" href="/src/css/main.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <div class="turntable">
+        <div class="disc-container">
+          <div class="disc" id="disc">
+            <div class="disc__que"></div>
+            <div class="disc__label"></div>
+            <div class="disc__middle"></div>
+          </div>
+          <div class="disc__glare"></div>
+        </div>
+
+        <div class="sidebar">
+          <div class="controls">
+            <div class="controls__row">
+              <button class="control button" id="playToggle">Power</button>
+              <button class="control button rewind" id="rewind">
+                &lt;&lt;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/js/main.ts"></script>
+  </body>
+</html>

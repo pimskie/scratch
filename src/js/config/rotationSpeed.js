@@ -1,0 +1,12 @@
+const TAU = Math.PI * 2;
+const targetFPS = 60;
+const RPS = 0.75;
+const RPM = RPS * 60;
+
+const RADIANS_PER_MINUTE = RPM * TAU;
+const RADIANS_PER_SECOND = RADIANS_PER_MINUTE / 60;
+const RADIANS_PER_MILLISECOND = RADIANS_PER_SECOND * 0.001;
+
+const ROTATION_SPEED = (TAU * RPS) / targetFPS;
+
+export { RPS, ROTATION_SPEED, RADIANS_PER_MILLISECOND };
