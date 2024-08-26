@@ -111,7 +111,7 @@ class Disc {
   }
 
   onDragStart(e: PointerEvent) {
-    document.body.addEventListener('mousemove', this.onDragProgress);
+    document.body.addEventListener('pointermove', this.onDragProgress);
     document.body.addEventListener('pointerup', this.onDragEnd);
 
     this._center = getElementCenter(this.el);
@@ -124,8 +124,6 @@ class Disc {
   }
 
   onDragProgress(e: MouseEvent) {
-    e.preventDefault();
-
     const pointerPosition: Vector = {
       x: e.clientX,
       y: e.clientY,
