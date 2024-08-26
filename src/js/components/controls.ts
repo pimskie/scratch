@@ -5,7 +5,9 @@ class Controls {
   public isPlaying: boolean = false;
 
   public callbacks = {
-    onIsplayingChanged: (isPlaying: boolean) => isPlaying,
+    // @ts-expect-error: unused var
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onIsplayingChanged: (isPlaying: boolean) => {},
     onRewind: () => {},
   };
 
@@ -21,10 +23,13 @@ class Controls {
 
     this.toggleButton.addEventListener('click', () => this.toggle());
     this.rewindButton.addEventListener('click', () => this.rewind());
+
+    this.isDisabled = true;
   }
 
   set isDisabled(disabled: boolean) {
     this.toggleButton.disabled = disabled;
+    this.rewindButton.disabled = disabled;
   }
 
   toggle() {

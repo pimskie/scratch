@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="566.929px" height="566.929px" viewBox="0 0 566.929 566.929" enable-background="new 0 0 566.929 566.929"
+	 xml:space="preserve">
+<g id="Black-Background" display="none">
+	<rect display="inline" width="566.929" height="566.929"/>
+</g>
+<g id="Border">
+	<g>
+		<path fill="#DADADA" d="M538.583,28.346v510.236H28.346V28.346H538.583 M545.669,21.26H21.26v524.409h524.41V21.26L545.669,21.26z
+			"/>
+	</g>
+</g>
+<g id="P">
+	<rect x="233.858" y="134.646" fill="#00B1EB" width="99.213" height="94.488"/>
+	<polygon fill="#EDEDED" points="432.283,144.095 347.245,144.095 347.402,304.725 219.685,304.725 219.685,144.095
+		134.646,144.095 134.567,219.829 134.567,389.828 134.646,432.283 219.685,432.283 219.685,389.764 432.283,389.764 	"/>
+</g>
+<g id="Concept" display="none">
+
+		<image display="inline" overflow="visible" opacity="0.7" width="618" height="624" xlink:href="Schermafbeelding 2019-01-18 om 01.20.09.png"  transform="matrix(1.0679 0 0 1.0679 -49.605 7.0869)">
+	</image>
+</g>
+</svg>

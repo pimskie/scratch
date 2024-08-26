@@ -1,41 +1,35 @@
 class Sampler {
+  public audioContext: AudioContext = new AudioContext();
+  public gainNode: GainNode = new GainNode(this.audioContext);
+
+  public audioBuffer: AudioBuffer | null = null;
+  public audioBufferReversed: AudioBuffer | null = null;
+  public audioSource: AudioBufferSourceNode | null = null;
+
+  public duration: number = 0;
+  public isReversed: boolean = false;
+
   constructor() {
-    this.audioContext = new AudioContext();
-    this.gainNode = this.audioContext.createGain();
-
-    this.audioBuffer = null;
-    this.audioBufferReversed = null;
-    this.audioSource = null;
-
-    this.duration = 0;
-    this.speedPrevious = 0;
-    this.isReversed = false;
-
     this.gainNode.connect(this.audioContext.destination);
   }
 
-  async getArrayBufferFromUrl(audioUrl) {
+  async getAudioBuffer(audioUrl: string) {
     const response = await fetch(audioUrl);
-    const buffer = await response.arrayBuffer();
+    const arrayBuffer = await response.arrayBuffer();
 
-    return buffer;
-  }
-
-  async getAudioBuffer(audioUrl) {
-    const arrayBuffer = await this.getArrayBufferFromUrl(audioUrl);
     const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
 
     return audioBuffer;
   }
 
-  async loadTrack(audioUrl) {
+  async loadTrack(audioUrl: string) {
     this.audioBuffer = await this.getAudioBuffer(audioUrl);
     this.audioBufferReversed = this.getReversedAudioBuffer(this.audioBuffer);
 
     this.duration = this.audioBuffer.duration;
   }
 
-  getReversedAudioBuffer(audioBuffer) {
+  getReversedAudioBuffer(audioBuffer: AudioBuffer) {
     const bufferArray = audioBuffer.getChannelData(0).slice().reverse();
 
     const audioBufferReversed = this.audioContext.createBuffer(
@@ -49,7 +43,7 @@ class Sampler {
     return audioBufferReversed;
   }
 
-  changeDirection(isReversed, secondsPlayed) {
+  changeDirection(isReversed: boolean, secondsPlayed: number) {
     this.isReversed = isReversed;
     this.play(secondsPlayed);
   }
@@ -72,7 +66,7 @@ class Sampler {
     this.audioSource.start(0, cueTime);
   }
 
-  updateSpeed(speed, isReversed, secondsPlayed) {
+  updateSpeed(speed: number, isReversed: boolean, secondsPlayed: number) {
     if (!this.audioSource) {
       return;
     }
@@ -89,10 +83,6 @@ class Sampler {
       Math.max(0.001, speedAbsolute),
       currentTime,
     );
-  }
-
-  toggleMute(isMuted) {
-    this.gainNode.gain.value = isMuted ? 0 : 1;
   }
 
   pause() {

@@ -5,46 +5,63 @@ import {
   clamp,
   angleBetween,
   angleDifference,
-} from '../utils/utils.js';
-import * as arrayUtils from '../utils/array.js';
+} from '@/utils/utils';
+import * as arrayUtils from '@/utils/array';
 
-import { RPS, RADIANS_PER_MILLISECOND } from '../config/rotationSpeed.js';
+import { RPS, RADIANS_PER_MILLISECOND } from '@/config/rotationSpeed';
 
-const noop = () => {};
+import type { Vector } from '@/types/Vector';
+
+type DiscProgress = {
+  playbackSpeed: number;
+  isReversed: boolean;
+  secondsPlayed: number;
+  progress: number;
+};
 class Disc {
-  constructor(el) {
+  public el: HTMLDivElement;
+
+  private _playbackSpeed = 1;
+  private _duration = 0;
+  private _isDragging = false;
+
+  private _center: Vector;
+
+  private _currentAngle = 0;
+  private _previousAngle = 0;
+  private _maxAngle = TAU;
+
+  public rafId: number | null = null;
+
+  public previousTimestamp: number;
+
+  private _draggingSpeeds: Array<number> = [];
+  private _draggingFrom: Vector = { x: 0, y: 0 };
+
+  public isReversed: boolean = false;
+
+  public callbacks = {
+    // @ts-expect-error: unused var
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onDragEnded: (secondsPlayed: number): void => {},
+    onStop: () => {},
+
+    // @ts-expect-error: unused var
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onLoop: (params: DiscProgress) => {},
+  };
+
+  constructor(el: HTMLDivElement) {
     this.el = el;
 
-    this._isPoweredOn = false;
-    this._playbackSpeed = 1;
-    this._duration = 0;
-    this._isDragging = false;
+    this._center = getElementCenter(this.el);
 
-    this.center = getElementCenter(this.el);
-
-    this.angle = 0;
-    this.anglePrevious = 0;
-    this.maxAngle = TAU;
-
-    this.rafId = null;
-
-    this.timestampPrevious = performance.now();
-
-    this.draggingSpeeds = [];
-    this.draggingFrom = {};
-    this.isReversed = false;
+    this.previousTimestamp = performance.now();
 
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragProgress = this.onDragProgress.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.loop = this.loop.bind(this);
-
-    this.callbacks = {
-      onDragEnded: noop,
-      onAutoRotate: noop,
-      onStop: noop,
-      onLoop: noop,
-    };
 
     this.init();
   }
@@ -58,25 +75,15 @@ class Disc {
   }
 
   set playbackSpeed(s) {
-    this.draggingSpeeds.push(s);
-    this.draggingSpeeds = arrayUtils.limit(this.draggingSpeeds, 10);
+    this._draggingSpeeds.push(s);
+    this._draggingSpeeds = arrayUtils.limit(this._draggingSpeeds, 10);
 
-    this._playbackSpeed = arrayUtils.smooth(this.draggingSpeeds);
-    this._playbackSpeed = arrayUtils.average(this.draggingSpeeds);
+    this._playbackSpeed = arrayUtils.average(this._draggingSpeeds);
     this._playbackSpeed = clamp(this._playbackSpeed, -4, 4);
   }
 
   get secondsPlayed() {
-    return this.angle / TAU / RPS;
-  }
-
-  get duration() {
-    return this._duration;
-  }
-
-  set duration(durationInSeconds) {
-    this._duration = durationInSeconds;
-    this.maxAngle = durationInSeconds * RPS * TAU;
+    return this._currentAngle / TAU / RPS;
   }
 
   set isDragging(d) {
@@ -89,23 +96,26 @@ class Disc {
   }
 
   powerOn() {
-    this._isPoweredOn = true;
     this._playbackSpeed = 1;
 
     this.start();
   }
 
   powerOff() {
-    this._isPoweredOn = false;
     this.stop();
   }
 
-  onDragStart(e) {
+  public setDuration(duration: number) {
+    this._duration = duration;
+    this._maxAngle = duration * RPS * TAU;
+  }
+
+  onDragStart(e: PointerEvent) {
     document.body.addEventListener('pointermove', this.onDragProgress);
     document.body.addEventListener('pointerup', this.onDragEnd);
 
-    this.center = getElementCenter(this.el);
-    this.draggingFrom = {
+    this._center = getElementCenter(this.el);
+    this._draggingFrom = {
       x: e.clientX,
       y: e.clientY,
     };
@@ -113,28 +123,29 @@ class Disc {
     this.isDragging = true;
   }
 
-  onDragProgress(e) {
+  onDragProgress(e: PointerEvent) {
     e.preventDefault();
 
-    const { clientX, clientY } = e;
-    const pointerPosition = { x: clientX, y: clientY };
+    const pointerPosition: Vector = {
+      x: e.clientX,
+      y: e.clientY,
+    };
 
-    const anglePointerToCenter = angleBetween(this.center, pointerPosition);
-    const angleDraggingFromToCenter = angleBetween(
-      this.center,
-      this.draggingFrom,
+    const anglePointerToCenter = angleBetween(this._center, pointerPosition);
+
+    const angle_DraggingFromToCenter = angleBetween(
+      this._center,
+      this._draggingFrom,
     );
 
     const angleDragged = angleDifference(
-      angleDraggingFromToCenter,
+      angle_DraggingFromToCenter,
       anglePointerToCenter,
     );
 
-    this.setAngle(this.angle - angleDragged);
+    this.setAngle(this._currentAngle - angleDragged);
 
-    this.draggingFrom = { ...pointerPosition };
-
-    this.setState();
+    this._draggingFrom = { ...pointerPosition };
   }
 
   onDragEnd() {
@@ -147,40 +158,27 @@ class Disc {
     this.callbacks.onDragEnded(this.secondsPlayed);
   }
 
-  autoRotate(timestampCurrent) {
-    const timestampElapsed = timestampCurrent - this.timestampPrevious;
-    let rotationSpeed =
-      RADIANS_PER_MILLISECOND * timestampElapsed * this.playbackSpeed;
+  autoRotate(currentTimestamp: number) {
+    const timestampElapsed = currentTimestamp - this.previousTimestamp;
+    const rotationSpeed = RADIANS_PER_MILLISECOND * timestampElapsed;
 
-    rotationSpeed += 0.1;
-
-    rotationSpeed = clamp(
-      rotationSpeed,
-      0,
-      RADIANS_PER_MILLISECOND * timestampElapsed,
-    );
-
-    this.setAngle(this.angle + rotationSpeed);
+    this.setAngle(this._currentAngle + rotationSpeed);
   }
 
-  setState() {
-    this.el.style.transform = `rotate(${this.angle}rad)`;
-  }
+  setAngle(angle: number) {
+    this._currentAngle = clamp(angle, 0, this._maxAngle);
 
-  setAngle(angle) {
-    this.angle = clamp(angle, 0, this.maxAngle);
-
-    return this.angle;
+    return this._currentAngle;
   }
 
   start() {
-    this.timestampPrevious = performance.now();
+    this.previousTimestamp = performance.now();
 
     this.loop();
   }
 
   stop() {
-    cancelAnimationFrame(this.rafId);
+    cancelAnimationFrame(this.rafId || 0);
 
     this.callbacks.onStop();
   }
@@ -190,27 +188,27 @@ class Disc {
   }
 
   loop() {
-    const timestampCurrent = performance.now();
+    const currentTimestamp = performance.now();
 
     if (!this.isDragging) {
-      this.autoRotate(timestampCurrent);
+      this.autoRotate(currentTimestamp);
     }
 
-    const timestampDifferenceMS = timestampCurrent - this.timestampPrevious;
+    const timestampDifferenceMS = currentTimestamp - this.previousTimestamp;
 
-    const rotated = this.angle - this.anglePrevious;
+    const rotated = this._currentAngle - this._previousAngle;
     const rotationNormal = RADIANS_PER_MILLISECOND * timestampDifferenceMS;
 
     this.playbackSpeed = rotated / rotationNormal || 0;
-    this.isReversed = this.angle < this.anglePrevious;
+    this.isReversed = this._currentAngle < this._previousAngle;
 
-    this.anglePrevious = this.angle;
-    this.timestampPrevious = performance.now();
+    this._previousAngle = this._currentAngle;
+    this.previousTimestamp = performance.now();
 
-    this.setState();
+    this.el.style.transform = `rotate(${this._currentAngle}rad)`;
 
-    const { playbackSpeed, isReversed, secondsPlayed, duration } = this;
-    const progress = secondsPlayed / duration;
+    const { playbackSpeed, isReversed, secondsPlayed, _duration } = this;
+    const progress = secondsPlayed / _duration;
 
     this.callbacks.onLoop({
       playbackSpeed,
@@ -219,7 +217,7 @@ class Disc {
       progress,
     });
 
-    this.anglePrevious = this.angle;
+    this._previousAngle = this._currentAngle;
 
     this.rafId = requestAnimationFrame(this.loop);
   }

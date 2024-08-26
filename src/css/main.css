@@ -123,8 +123,7 @@ body {
   width: calc(var(--disc-dimension) * 0.4);
   height: calc(var(--disc-dimension) * 0.4);
 
-  background: no-repeat url(https://pimskie.dev/public/assets/logo.jpg) center
-    center;
+  background: no-repeat url(/logo-invert.jpg) center center;
   background-size: cover;
   border-radius: 50%;
 
@@ -173,8 +172,10 @@ body {
 
 .controls__row {
   justify-content: center;
+  display: flex;
+  flex-direction: column;
 
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .control {
@@ -182,15 +183,11 @@ body {
   text-transform: uppercase;
 }
 
-.rewind {
-  display: none;
-}
-
 .button {
   border-radius: 0;
   border: none;
   background: rgb(69, 69, 69);
-  font-size: 10px;
+  font-size: 0.75rem;
   padding: 0.4rem;
   color: #fff;
   line-height: 1.3;
@@ -210,4 +207,8 @@ body {
 .button.is-active {
   transform: translate(1px, 2px);
   box-shadow: 0px 0px 5px 1px var(--color-theme);
+}
+
+.button[disabled] {
+  opacity: 0.5;
 }
