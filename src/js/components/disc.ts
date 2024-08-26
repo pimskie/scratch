@@ -67,7 +67,7 @@ class Disc {
   }
 
   init() {
-    this.el.addEventListener('mousedown', this.onDragStart);
+    this.el.addEventListener('pointerdown', this.onDragStart);
   }
 
   get playbackSpeed() {
@@ -110,9 +110,9 @@ class Disc {
     this._maxAngle = duration * RPS * TAU;
   }
 
-  onDragStart(e: MouseEvent) {
-    document.body.addEventListener('mousemove', this.onDragProgress);
-    document.body.addEventListener('mouseup', this.onDragEnd);
+  onDragStart(e: PointerEvent) {
+    document.body.addEventListener('pointermove', this.onDragProgress);
+    document.body.addEventListener('pointerup', this.onDragEnd);
 
     this._center = getElementCenter(this.el);
     this._draggingFrom = {
@@ -147,8 +147,8 @@ class Disc {
   }
 
   onDragEnd() {
-    document.body.removeEventListener('mousemove', this.onDragProgress);
-    document.body.removeEventListener('mouseup', this.onDragEnd);
+    document.body.removeEventListener('pointermove', this.onDragProgress);
+    document.body.removeEventListener('pointerup', this.onDragEnd);
 
     this.isDragging = false;
     this.playbackSpeed = 1;

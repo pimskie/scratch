@@ -68,7 +68,7 @@ body {
 
   border-radius: 50%;
   border: 2px solid #000;
-  background: linear-gradient(45deg, rgb(255, 255, 255), rgb(66, 66, 66));
+  background: linear-gradient(45deg, #f0f0f0, #424242);
 }
 
 .disc {
