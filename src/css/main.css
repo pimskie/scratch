@@ -7,9 +7,6 @@
   --spacing-groove: 10%;
 
   --font-family: 'Poppins', cursive;
-
-  --turntable-height: clamp(300px, 90vmin, 500px);
-  --disc-dimension: calc(var(--turntable-height) * 0.9);
 }
 
 html {
@@ -26,6 +23,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+
+  overflow: hidden;
 }
 
 body {
@@ -41,15 +40,17 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  padding: 2rem;
 }
 
 .turntable {
-  height: var(--turntable-height);
+  width: clamp(25rem, 100%, 38rem);
 
-  display: inline-flex;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
 
-  padding: calc(var(--turntable-height) * 0.05);
+  padding: 3%;
   background: rgb(233, 233, 233);
   border-radius: 3px;
 
@@ -57,8 +58,9 @@ body {
 }
 
 .disc-container {
+  width: 100%;
+
   aspect-ratio: 1;
-  height: 100%;
 
   display: flex;
   justify-content: center;
@@ -120,8 +122,8 @@ body {
   align-items: center;
   text-align: center;
 
-  width: calc(var(--disc-dimension) * 0.4);
-  height: calc(var(--disc-dimension) * 0.4);
+  width: 45%;
+  aspect-ratio: 1/1;
 
   background: no-repeat url(/logo-invert.jpg) center center;
   background-size: cover;
@@ -147,7 +149,7 @@ body {
 }
 
 .disc__glare {
-  width: var(--disc-dimension);
+  /* width: var(--disc-dimension); */
   height: 15%;
 
   position: absolute;
@@ -159,23 +161,10 @@ body {
   pointer-events: none;
 }
 
-.sidebar {
-  display: flex;
-  height: 100%;
-}
-
 .controls {
-  height: 100%;
   display: flex;
-  align-items: flex-end;
-}
-
-.controls__row {
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-
-  gap: 0.75rem;
+  justify-content: end;
+  gap: 0.5rem;
 }
 
 .control {
