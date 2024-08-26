@@ -1,8 +1,8 @@
-import Disc from '@/components/disc';
+import Record from '@/components/record';
 import Sampler from '@/components/sampler';
 import Controls from '@/components/controls';
 
-const disc = new Disc(document.querySelector('#disc')!);
+const record = new Record(document.querySelector('#disc')!);
 const sampler = new Sampler();
 
 const controls = new Controls({
@@ -14,31 +14,31 @@ await sampler.loadTrack('/scratch/audio/alphabet.mp3');
 
 controls.isDisabled = false;
 
-disc.setDuration(sampler.duration);
+record.setDuration(sampler.duration);
 
-disc.callbacks.onStop = () => sampler.pause();
+record.callbacks.onStop = () => sampler.pause();
 
-disc.callbacks.onDragEnded = () => {
+record.callbacks.onDragEnded = () => {
   if (!controls.isPlaying) {
     return;
   }
 
-  sampler.play(disc.secondsPlayed);
+  sampler.play(record.secondsPlayed);
 };
 
-disc.callbacks.onLoop = ({ playbackSpeed, isReversed, secondsPlayed }) => {
-  sampler.updateSpeed(playbackSpeed, isReversed, secondsPlayed);
+record.callbacks.onLoop = (recordUpdate) => {
+  sampler.updateSpeed(recordUpdate);
 };
 
 controls.callbacks.onIsplayingChanged = (isPlaying) => {
   if (isPlaying) {
-    disc.powerOn();
-    sampler.play(disc.secondsPlayed);
+    record.powerOn();
+    sampler.play(record.secondsPlayed);
   } else {
-    disc.powerOff();
+    record.powerOff();
   }
 };
 
 controls.callbacks.onRewind = () => {
-  disc.rewind();
+  record.rewind();
 };

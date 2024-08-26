@@ -1,3 +1,4 @@
+import type { RecordUpdate } from '@/types/RecordUpdate';
 class Sampler {
   public audioContext: AudioContext = new AudioContext();
   public gainNode: GainNode = new GainNode(this.audioContext);
@@ -57,16 +58,15 @@ class Sampler {
 
     const cueTime = this.isReversed ? this.duration - offset : offset;
 
-    this.audioSource = this.audioContext.createBufferSource();
+    this.audioSource = new AudioBufferSourceNode(this.audioContext);
     this.audioSource.buffer = buffer;
     this.audioSource.loop = false;
 
     this.audioSource.connect(this.gainNode);
-
     this.audioSource.start(0, cueTime);
   }
 
-  updateSpeed(speed: number, isReversed: boolean, secondsPlayed: number) {
+  updateSpeed({ playbackSpeed, isReversed, secondsPlayed }: RecordUpdate) {
     if (!this.audioSource) {
       return;
     }
@@ -76,7 +76,7 @@ class Sampler {
     }
 
     const { currentTime } = this.audioContext;
-    const speedAbsolute = Math.abs(speed);
+    const speedAbsolute = Math.abs(playbackSpeed);
 
     this.audioSource.playbackRate.cancelScheduledValues(currentTime);
     this.audioSource.playbackRate.linearRampToValueAtTime(
