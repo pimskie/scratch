@@ -149,7 +149,7 @@ body {
 }
 
 .disc__glare {
-  /* width: var(--disc-dimension); */
+  width: 100%;
   height: 15%;
 
   position: absolute;
